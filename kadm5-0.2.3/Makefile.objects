@@ -1,0 +1,8 @@
+kadm5.lo: /afs/cs.stanford.edu/u/miles/src/kadm5-0.2.3/kadm5-0.2.3/kadm5.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/afs/cs.stanford.edu/u/miles/src/kadm5-0.2.3/kadm5-0.2.3 $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /afs/cs.stanford.edu/u/miles/src/kadm5-0.2.3/kadm5-0.2.3/kadm5.c -o kadm5.lo 
+$(phplibdir)/kadm5.la: ./kadm5.la
+	$(LIBTOOL) --mode=install cp ./kadm5.la $(phplibdir)
+
+./kadm5.la: $(shared_objects_kadm5) $(KADM5_SHARED_DEPENDENCIES)
+	$(LIBTOOL) --mode=link $(CC) $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS) $(LDFLAGS) -o $@ -export-dynamic -avoid-version -prefer-pic -module -rpath $(phplibdir) $(EXTRA_LDFLAGS) $(shared_objects_kadm5) $(KADM5_SHARED_LIBADD)
+
