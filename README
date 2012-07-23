@@ -1,0 +1,2 @@
+This is a modified version of the PHP module php-kadm5, extended to
+allow authentication using Kerberos credentials stored in a keytab file.
