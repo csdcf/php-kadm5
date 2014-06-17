@@ -1,8 +1,0 @@
-#! /bin/sh
-#
-# Created by configure
-
-CFLAGS='-I/usr/include/et' \
-CPPFLAGS='-I/usr/include/et' \
-'./configure' \
-"$@"
