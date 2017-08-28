@@ -508,6 +508,69 @@ PHP_FUNCTION(kadm5_init_with_password)
 }
 /* }}} */
 
+/*kadm5_ret_t    kadm5_init_with_skey(char *client_name,
+				    char *keytab,
+				    char *service_name,
+#if USE_KADM5_API_VERSION == 1
+				    char *realm,
+#else
+				    kadm5_config_params *params,
+#endif
+				    krb5_ui_4 struct_version,
+				    krb5_ui_4 api_version,
+				    void **server_handle);
+*/
+
+/* {{{ proto resource kadm5_init_with_skey(string admin_server, string realm, string principal, string keytab)
+   Opens a connection to the KADM5 library using a keytab and initializes any neccessary state information. */
+
+PHP_FUNCTION(kadm5_init_with_skey)
+{
+	char *admin_server, *realm, *princstr, *keytab;
+	int admin_server_len, realm_len, princstr_len, keytab_len;
+	kadm5_config_params params;
+	void *handle = NULL;
+	void *dbargs = NULL;
+	kadm5_ret_t rc;
+
+	memset((char *) &params, 0, sizeof(params));
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss", 
+							  &admin_server, &admin_server_len,
+							  &realm, &realm_len, &princstr, &princstr_len, 
+							  &keytab, &keytab_len) == FAILURE) {
+		WRONG_PARAM_COUNT;
+	}
+
+	params.realm = realm;
+	params.mask |= KADM5_CONFIG_REALM;
+	params.admin_server = admin_server;
+	params.mask |= KADM5_CONFIG_ADMIN_SERVER;
+
+	rc = kadm5_init_with_skey(princstr,
+								  keytab,
+								  KADM5_ADMIN_SERVICE,
+								  &params,
+								  KADM5_STRUCT_VERSION,
+								  KADM5_API_VERSION_2,
+								  &dbargs,
+								  &handle);
+
+	if (rc) {
+		kadm5_error(rc);
+		RETURN_FALSE;
+	}
+
+	if (handle == NULL) {
+		php_error(E_WARNING, "Internal error! handle == NULL!");
+		RETURN_FALSE;
+	}
+
+	ZEND_REGISTER_RESOURCE(return_value, handle, le_handle);
+}
+
+/*}}}*/
+
 
 /* {{{ proto int kadm5_destroy(resource handle)
    Closes the connection to the admin server and releases all related resources. */
