@@ -82,6 +82,7 @@ static int le_handle;
  */
 zend_function_entry kadm5_functions[] = {
 	PHP_FE(kadm5_init_with_password, NULL)
+	PHP_FE(kadm5_init_with_skey, NULL)
 	PHP_FE(kadm5_destroy, NULL)
 	PHP_FE(kadm5_flush, NULL)
 	PHP_FE(kadm5_create_principal, NULL)
@@ -441,7 +442,6 @@ static void kadm5_error( kadm5_ret_t error_code )
 	case KADM5_SETKEY_DUP_ENCTYPES:
 		php_error(E_WARNING, "Multiple values for single or folded enctype. (KADM5_SETKEY_DUP_ENCTYPES)");
 		break;
-/*	default: */
 	}
 }
 /* }}} */
@@ -495,8 +495,8 @@ PHP_FUNCTION(kadm5_init_with_password)
 		RETURN_FALSE;
 	}
 
-	/* krb5_free_principal(context, princ.principal); */
-	// krb5_free_context(context);
+
+	krb5_free_context(context);
 	/* RETURN_TRUE; */
 
 	if (handle == NULL) {
@@ -630,6 +630,24 @@ PHP_FUNCTION(kadm5_create_principal)
 		krb5_free_context(context);
 		RETURN_FALSE;
 	}
+
+	/*
+	 * If -policy was not specified, and -clearpolicy was not
+	 * specified, and the policy "default" exists, assign it.  If
+	 * -clearpolicy was specified, then KADM5_POLICY_CLR should be
+	 * unset, since it is never valid for kadm5_create_principal.
+	 */
+	if ((! (mask & KADM5_POLICY)) && (! (mask & KADM5_POLICY_CLR))) {
+		if (! kadm5_get_policy(handle, "default", &defpol)) {
+			php_error(E_WARNING, "No policy specified for %s; assigning \"default\"", princstr);
+			princ.policy = "default";
+			mask |= KADM5_POLICY;
+			(void) kadm5_free_policy_ent(handle, &defpol);
+		} else {
+			php_error(E_WARNING, "No policy specified for %s; defaulting to no policy", princstr);
+		}
+	}
+	mask &= ~KADM5_POLICY_CLR;
 
 	/* parsing options */
 	if (options) {

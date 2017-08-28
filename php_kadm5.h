@@ -45,6 +45,7 @@ PHP_MSHUTDOWN_FUNCTION(kadm5);
 PHP_MINFO_FUNCTION(kadm5);
 
 PHP_FUNCTION(kadm5_init_with_password);
+PHP_FUNCTION(kadm5_init_with_skey);
 PHP_FUNCTION(kadm5_destroy);
 PHP_FUNCTION(kadm5_flush);
 PHP_FUNCTION(kadm5_create_principal);
