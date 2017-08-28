@@ -1,8 +1,0 @@
-Changelog:
-
-Updates to kadm5-0.2.3 by Ben Lasley (blasley@cs.stanford.edu) 11:41AM 7-23-2010
-
-php_kadm5.h:48 	inserted php function declaration for kadm5_init_with_skey
-
-kadm5.c:79		inserted php function declaration for kadm5_init_with_skey
-kadm5.c:491-550	inserted php function kadm5_init_with_skey which mirrors kadm5_init_with_password, exchanging the password argument for a keytab argument and wrapping "kadm5/admin.h" function kadm5_init_with_password.
