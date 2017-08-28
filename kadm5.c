@@ -529,6 +529,7 @@ PHP_FUNCTION(kadm5_init_with_skey)
 	char *admin_server, *realm, *princstr, *keytab;
 	int admin_server_len, realm_len, princstr_len, keytab_len;
 	kadm5_config_params params;
+	krb5_context context;
 	void *handle = NULL;
 	void *dbargs = NULL;
 	kadm5_ret_t rc;
@@ -546,8 +547,16 @@ PHP_FUNCTION(kadm5_init_with_skey)
 	params.mask |= KADM5_CONFIG_REALM;
 	params.admin_server = admin_server;
 	params.mask |= KADM5_CONFIG_ADMIN_SERVER;
+	
+	/* initializing krb5 context */
+	rc = krb5_init_context(&context);
 
-	rc = kadm5_init_with_skey(princstr,
+	if (rc) {
+		php_error(E_WARNING, "Error while initializing krb5 library");
+		RETURN_FALSE;
+	}
+	
+	rc = kadm5_init_with_skey(context, princstr,
 								  keytab,
 								  KADM5_ADMIN_SERVICE,
 								  &params,
@@ -565,7 +574,10 @@ PHP_FUNCTION(kadm5_init_with_skey)
 		php_error(E_WARNING, "Internal error! handle == NULL!");
 		RETURN_FALSE;
 	}
-
+	
+	krb5_free_context(context);
+	/* RETURN_TRUE; */
+	
 	ZEND_REGISTER_RESOURCE(return_value, handle, le_handle);
 }
 
