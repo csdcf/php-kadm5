@@ -80,7 +80,7 @@ static int le_handle;
  *
  * Every user visible function must have an entry in kadm5_functions[].
  */
-function_entry kadm5_functions[] = {
+zend_function_entry kadm5_functions[] = {
 	PHP_FE(kadm5_init_with_password, NULL)
 	PHP_FE(kadm5_destroy, NULL)
 	PHP_FE(kadm5_flush, NULL)
@@ -454,6 +454,7 @@ PHP_FUNCTION(kadm5_init_with_password)
 	char *admin_server, *realm, *princstr, *password;
 	int admin_server_len, realm_len, princstr_len, password_len;
 	kadm5_config_params params;
+	krb5_context context;
 	void *handle = NULL;
 	kadm5_ret_t rc;
 	char **db_args = NULL;
@@ -472,7 +473,16 @@ PHP_FUNCTION(kadm5_init_with_password)
 	params.admin_server = admin_server;
 	params.mask |= KADM5_CONFIG_ADMIN_SERVER;
 
-	rc = kadm5_init_with_password(princstr, password,
+	/* initializing krb5 context */
+
+	rc = krb5_init_context(&context);
+
+	if (rc) {
+		php_error(E_WARNING, "Error while initializing krb5 library");
+		RETURN_FALSE;
+	}
+
+	rc = kadm5_init_with_password(context, princstr, password,
 								  KADM5_ADMIN_SERVICE,
 								  &params,
 								  KADM5_STRUCT_VERSION,
@@ -484,6 +494,10 @@ PHP_FUNCTION(kadm5_init_with_password)
 		kadm5_error(rc);
 		RETURN_FALSE;
 	}
+
+	/* krb5_free_principal(context, princ.principal); */
+	// krb5_free_context(context);
+	/* RETURN_TRUE; */
 
 	if (handle == NULL) {
 		php_error(E_WARNING, "Internal error! handle == NULL!");
@@ -1196,7 +1210,4 @@ PHP_FUNCTION(kadm5_get_policies)
  * Local variables:
  * tab-width: 4
  * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
  */
