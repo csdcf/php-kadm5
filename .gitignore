@@ -43,3 +43,6 @@ kadm5/autom4te.cache/
 kadm5/build/
 debian/php[0-9].[0-9]-*
 tmp/
+.buildpath
+.project
+.settings
