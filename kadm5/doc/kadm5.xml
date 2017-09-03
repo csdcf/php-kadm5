@@ -39,7 +39,12 @@
 <![CDATA[
 <?php
 
+  # Using a password string
   $handle = kadm5_init_with_password("afs-1", "GONICUS.LOCAL", "admin/admin", "password");
+
+  # Using a keytab file
+  $handle = kadm5_init_with_skey( "afs-1", "GONICUS.LOCAL", "admin/admin", "/etc/krb5.keytab" );
+
 
   print "<h1>get_principals</h1>\n";
   $principals = kadm5_get_principals($handle);
